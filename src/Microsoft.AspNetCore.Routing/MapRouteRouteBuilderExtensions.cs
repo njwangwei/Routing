@@ -19,7 +19,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="name">The name of the route.</param>
         /// <param name="template">The URL pattern of the route.</param>
         /// <returns>A reference to this instance after the operation has completed.</returns>
-        public static IRouteBuilder MapRoute(
+        public static IRouteBuilder MapRoute1(
             this IRouteBuilder routeBuilder,
             string name,
             string template)
