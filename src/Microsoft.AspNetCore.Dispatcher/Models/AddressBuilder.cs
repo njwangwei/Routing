@@ -9,28 +9,21 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
     {
         public ApplicationModel Application { get; set; }
         
-        public ResourceModel Resource { get; set; }
-
         public AddressModel Address { get; set; }
 
         protected abstract Address BuildCore(object tag, DispatcherValueCollection values, object[] metadata, string displayName);
 
-        public static Address CreateDefault(ApplicationModel application, ResourceModel resource, AddressModel address)
+        public static Address CreateDefault(ApplicationModel application, AddressModel address)
         {
-            return Create<Default>(application, resource, address);
+            return Create<Default>(application, address);
         }
 
-        public static Address Create<TBuilder>(ApplicationModel application, ResourceModel resource, AddressModel address)
+        public static Address Create<TBuilder>(ApplicationModel application, AddressModel address)
             where TBuilder : AddressBuilder, new()
         {
             if (application == null)
             {
                 throw new ArgumentNullException(nameof(application));
-            }
-
-            if (resource == null)
-            {
-                throw new ArgumentNullException(nameof(resource));
             }
 
             if (address == null)
@@ -41,7 +34,6 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
             var builder = new TBuilder()
             {
                 Address = address,
-                Resource = resource,
                 Application = application,
             };
             return builder.Build();
@@ -49,31 +41,17 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
 
         public virtual Address Build()
         {
-            var displayName = Address.DisplayName ?? Resource.DisplayName;
-            var metadata = CreateMetadataCollection(Application, Resource, Address);
-            var tag = Address.Tag ?? Resource.Tag;
+            var metadata = CreateMetadataCollection(Application, Address);
 
-            var values = new DispatcherValueCollection(Resource.Values);
-            foreach (var kvp in Address.Values)
-            {
-                values[kvp.Key] = kvp.Value;
-            }
-
-            return BuildCore(tag, values, metadata, displayName);
+            return BuildCore(Address.Tag, Address.Values, metadata, Address.DisplayName);
         }
 
-        private object[] CreateMetadataCollection(ApplicationModel model, ResourceModel item, AddressModel address)
+        private object[] CreateMetadataCollection(ApplicationModel application, AddressModel address)
         {
-            var metadata = new object[model.Metadata.Count + model.Metadata.Count + address.Metadata.Count];
+            var metadata = new object[application.Metadata.Count + address.Metadata.Count];
 
-            var index = 0;
-            model.Metadata.CopyTo(metadata, index);
-
-            index += model.Metadata.Count;
-            item.Metadata.CopyTo(metadata, index);
-
-            index += item.Metadata.Count;
-            address.Metadata.CopyTo(metadata, index);
+            application.Metadata.CopyTo(metadata, 0);
+            address.Metadata.CopyTo(metadata, application.Metadata.Count);
 
             return metadata;
         }

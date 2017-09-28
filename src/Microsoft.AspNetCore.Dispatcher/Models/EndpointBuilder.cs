@@ -10,28 +10,21 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
     {
         public ApplicationModel Application { get; set; }
 
-        public ResourceModel Resource { get; set; }
-
         public EndpointModel Endpoint { get; set; }
 
         protected abstract Endpoint BuildCore(object tag, DispatcherValueCollection values, object[] metadata, string displayName);
 
-        public static Endpoint CreateDefault(ApplicationModel application, ResourceModel resource, EndpointModel endpoint)
+        public static Endpoint CreateDefault(ApplicationModel application, EndpointModel endpoint)
         {
-            return Create<Default>(application, resource, endpoint);
+            return Create<Default>(application, endpoint);
         }
 
-        public static Endpoint Create<TBuilder>(ApplicationModel application, ResourceModel resource, EndpointModel endpoint)
+        public static Endpoint Create<TBuilder>(ApplicationModel application, EndpointModel endpoint)
             where TBuilder : EndpointBuilder, new()
         {
             if (application == null)
             {
                 throw new ArgumentNullException(nameof(application));
-            }
-
-            if (resource == null)
-            {
-                throw new ArgumentNullException(nameof(resource));
             }
 
             if (endpoint == null)
@@ -42,7 +35,6 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
             var builder = new TBuilder()
             {
                 Endpoint = endpoint,
-                Resource = resource,
                 Application = application,
             };
             return builder.Build();
@@ -50,31 +42,16 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
 
         public virtual Endpoint Build()
         {
-            var displayName = Endpoint.DisplayName ?? Resource.DisplayName;
-            var metadata = CreateMetadataCollection(Application, Resource, Endpoint);
-            var tag = Endpoint.Tag ?? Resource.Tag;
-
-            var values = new DispatcherValueCollection(Resource.Values);
-            foreach (var kvp in Endpoint.Values)
-            {
-                values[kvp.Key] = kvp.Value;
-            }
-
-            return BuildCore(tag, values, metadata, displayName);
+            var metadata = CreateMetadataCollection(Application, Endpoint);
+            return BuildCore(Endpoint.Tag, Endpoint.Values, metadata, Endpoint.DisplayName);
         }
 
-        private object[] CreateMetadataCollection(ApplicationModel model, ResourceModel item, EndpointModel endpoint)
+        private object[] CreateMetadataCollection(ApplicationModel application, EndpointModel endpoint)
         {
-            var metadata = new object[model.Metadata.Count + model.Metadata.Count + endpoint.Metadata.Count];
-
-            var index = 0;
-            model.Metadata.CopyTo(metadata, index);
-
-            index += model.Metadata.Count;
-            item.Metadata.CopyTo(metadata, index);
-
-            index += item.Metadata.Count;
-            endpoint.Metadata.CopyTo(metadata, index);
+            var metadata = new object[application.Metadata.Count + endpoint.Metadata.Count];
+            
+            application.Metadata.CopyTo(metadata, 0);
+            endpoint.Metadata.CopyTo(metadata, application.Metadata.Count);
 
             return metadata;
         }

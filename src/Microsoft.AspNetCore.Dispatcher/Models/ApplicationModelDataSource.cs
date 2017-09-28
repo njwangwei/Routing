@@ -50,9 +50,9 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
             var addresses = new List<Address>();
             var endpoints = new List<Endpoint>();
 
-            for (var i = 0; i < application.Resources.Count; i++)
+            for (var i = 0; i < application.Addresses.Count; i++)
             {
-                var resource = application.Resources[i];
+                var resource = application.Addresses[i];
 
                 for (var j = 0; j < resource.Addresses.Count; j++)
                 {

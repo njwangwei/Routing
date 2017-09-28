@@ -8,11 +8,13 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
 {
     public class ApplicationModel
     {
-        public Func<ApplicationModel, ResourceModel, AddressModel, Address> AddressBuilder { get; set; }
+        public Func<ApplicationModel, AddressModel, Address> AddressBuilder { get; set; }
 
-        public Func<ApplicationModel, ResourceModel, EndpointModel, Endpoint> EndpointBuilder { get; set; }
+        public Func<ApplicationModel, EndpointModel, Endpoint> EndpointBuilder { get; set; }
 
-        public IList<ResourceModel> Resources { get; } = new List<ResourceModel>();
+        public IList<AddressModel> Addresses { get; } = new List<AddressModel>();
+
+        public IList<EndpointModel> Endpoints { get; } = new List<EndpointModel>();
 
         public IList<object> Metadata { get; } = new List<object>();
     }

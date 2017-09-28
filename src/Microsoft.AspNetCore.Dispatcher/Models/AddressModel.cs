@@ -8,7 +8,7 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
 {
     public class AddressModel
     {
-        public Func<ApplicationModel, ResourceModel, AddressModel, Address> AddressBuilder { get; set; }
+        public Func<ApplicationModel, AddressModel, Address> AddressBuilder { get; set; }
 
         public string DisplayName { get; set; }
 

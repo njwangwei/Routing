@@ -55,107 +55,14 @@ namespace DispatcherSample
 
                 options.Dispatchers.Add(new TreeDispatcher()
                 {
-                    DataSource = new ApplicationModelDataSource(new ApplicationModel()
-                    {
-                        Resources =
-                        {
-                            new ResourceModel()
-                            {
-                                Addresses =
-                                {
-                                    new AddressModel(),
-                                },
-                                DisplayName = "Home::Index()",
-                                Endpoints =
-                                {
-                                    new EndpointModel(),
-                                },
-                                Tag = ((RequestDelegate)Home_Index),
-                                Template = "{controller=Home}/{action=Index}/{id?}",
-                                Values = new DispatcherValueCollection(new { controller = "Home", action = "Index", })
-                            },
-                            new ResourceModel()
-                            {
-                                Addresses =
-                                {
-                                    new AddressModel(),
-                                },
-                                DisplayName = "Home::About()",
-                                Endpoints =
-                                {
-                                    new EndpointModel(),
-                                },
-                                Tag = ((RequestDelegate)Home_About),
-                                Template = "{controller=Home}/{action=Index}/{id?}",
-                                Values = new DispatcherValueCollection(new { controller = "Home", action = "About", })
-                            },
-                            new ResourceModel()
-                            {
-                                Addresses =
-                                {
-                                    new AddressModel(),
-                                },
-                                DisplayName = "Admin:Index()",
-                                Endpoints =
-                                {
-                                    new EndpointModel(),
-                                },
-                                Metadata =
-                                {
-                                    new AuthorizationPolicyMetadata("Admin"),
-                                },
-                                Tag = ((RequestDelegate)Admin_Index),
-                                Template = "{controller=Home}/{action=Index}/{id?}",
-                                Values = new DispatcherValueCollection(new { controller = "Admin", action = "Index", })
-                            },
-                            new ResourceModel()
-                            {
-                                Addresses =
-                                {
-                                    new AddressModel(),
-                                },
-                                DisplayName = "Admin:GetUsers()",
-                                Endpoints =
-                                {
-                                    new EndpointModel(),
-                                },
-                                HttpMethods =
-                                {
-                                    "GET",
-                                },
-                                Metadata =
-                                {
-                                    new AuthorizationPolicyMetadata("Admin"),
-                                },
-                                Tag = ((RequestDelegate)Admin_Index),
-                                Template = "{controller=Home}/{action=Index}/{id?}",
-                                Values = new DispatcherValueCollection(new { controller = "Admin", action = "Users", })
-                            },
-                            new ResourceModel()
-                            {
-                                Addresses =
-                                {
-                                    new AddressModel(),
-                                },
-                                DisplayName = "Admin:EditUsers()",
-                                Endpoints =
-                                {
-                                    new EndpointModel(),
-                                },
-                                HttpMethods =
-                                {
-                                    "POST",
-                                },
-                                Metadata =
-                                {
-                                    new AuthorizationPolicyMetadata("Admin"),
-                                },
-                                Tag = ((RequestDelegate)Admin_Index),
-                                Template = "{controller=Home}/{action=Index}/{id?}",
-                                Values = new DispatcherValueCollection(new { controller = "Admin", action = "Users", })
-                            }
-                        }
-                    })
+                    DataSource = new DataSourceBuilder()
+                        .ForTemplate("{controller=Home}/{action=Index}/{id?}")
+                            .AddResource(new { controller = "Home", action = "Index", }, Home_Index, "Home::Index()")
+                            .AddResource(new { controller = "Home", action = "About", }, Home_About, "Home::About()")
+                            .AddResource(new { controller = "Admin", action = "Index", }, Admin_Index, "Admin::Index()")
+                            .AddResource(new { controller = "Admin", action = "Users", }, "GET", Admin_Index, "Admin::Index()", new AuthorizationPolicyMetadata("Admin"))
+                            .AddResource(new { controller = "Admin", action = "Users", }, "POST", Admin_Index, "Admin::Index()", new AuthorizationPolicyMetadata("Admin"))
+                        .Build(),
                 });
 
                 options.HandlerFactories.Add((endpoint) => (endpoint as SimpleEndpoint)?.HandlerFactory);

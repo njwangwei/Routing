@@ -10,7 +10,7 @@ namespace Microsoft.AspNetCore.Dispatcher.Models
     {
         public string DisplayName { get; set; }
 
-        public Func<ApplicationModel, ResourceModel, EndpointModel, Endpoint> EndpointBuilder { get; set; }
+        public Func<ApplicationModel, EndpointModel, Endpoint> EndpointBuilder { get; set; }
 
         public IList<string> HttpMethods { get; } = new List<string>();
 
