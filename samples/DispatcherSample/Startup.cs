@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Dispatcher;
+using Microsoft.AspNetCore.Dispatcher.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -50,6 +51,111 @@ namespace DispatcherSample
                         new DispatcherValueEndpointSelector(),
                         new HttpMethodEndpointSelector(),
                     }
+                });
+
+                options.Dispatchers.Add(new TreeDispatcher()
+                {
+                    DataSource = new ApplicationModelDataSource(new ApplicationModel()
+                    {
+                        Resources =
+                        {
+                            new ResourceModel()
+                            {
+                                Addresses =
+                                {
+                                    new AddressModel(),
+                                },
+                                DisplayName = "Home::Index()",
+                                Endpoints =
+                                {
+                                    new EndpointModel(),
+                                },
+                                Tag = ((RequestDelegate)Home_Index),
+                                Template = "{controller=Home}/{action=Index}/{id?}",
+                                Values = new DispatcherValueCollection(new { controller = "Home", action = "Index", })
+                            },
+                            new ResourceModel()
+                            {
+                                Addresses =
+                                {
+                                    new AddressModel(),
+                                },
+                                DisplayName = "Home::About()",
+                                Endpoints =
+                                {
+                                    new EndpointModel(),
+                                },
+                                Tag = ((RequestDelegate)Home_About),
+                                Template = "{controller=Home}/{action=Index}/{id?}",
+                                Values = new DispatcherValueCollection(new { controller = "Home", action = "About", })
+                            },
+                            new ResourceModel()
+                            {
+                                Addresses =
+                                {
+                                    new AddressModel(),
+                                },
+                                DisplayName = "Admin:Index()",
+                                Endpoints =
+                                {
+                                    new EndpointModel(),
+                                },
+                                Metadata =
+                                {
+                                    new AuthorizationPolicyMetadata("Admin"),
+                                },
+                                Tag = ((RequestDelegate)Admin_Index),
+                                Template = "{controller=Home}/{action=Index}/{id?}",
+                                Values = new DispatcherValueCollection(new { controller = "Admin", action = "Index", })
+                            },
+                            new ResourceModel()
+                            {
+                                Addresses =
+                                {
+                                    new AddressModel(),
+                                },
+                                DisplayName = "Admin:GetUsers()",
+                                Endpoints =
+                                {
+                                    new EndpointModel(),
+                                },
+                                HttpMethods =
+                                {
+                                    "GET",
+                                },
+                                Metadata =
+                                {
+                                    new AuthorizationPolicyMetadata("Admin"),
+                                },
+                                Tag = ((RequestDelegate)Admin_Index),
+                                Template = "{controller=Home}/{action=Index}/{id?}",
+                                Values = new DispatcherValueCollection(new { controller = "Admin", action = "Users", })
+                            },
+                            new ResourceModel()
+                            {
+                                Addresses =
+                                {
+                                    new AddressModel(),
+                                },
+                                DisplayName = "Admin:EditUsers()",
+                                Endpoints =
+                                {
+                                    new EndpointModel(),
+                                },
+                                HttpMethods =
+                                {
+                                    "POST",
+                                },
+                                Metadata =
+                                {
+                                    new AuthorizationPolicyMetadata("Admin"),
+                                },
+                                Tag = ((RequestDelegate)Admin_Index),
+                                Template = "{controller=Home}/{action=Index}/{id?}",
+                                Values = new DispatcherValueCollection(new { controller = "Admin", action = "Users", })
+                            }
+                        }
+                    })
                 });
 
                 options.HandlerFactories.Add((endpoint) => (endpoint as SimpleEndpoint)?.HandlerFactory);
