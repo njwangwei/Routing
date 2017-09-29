@@ -45,7 +45,23 @@ namespace Microsoft.AspNetCore.Dispatcher
             foreach (var entry in _options.Dispatchers)
             {
                 await entry.Dispatcher(httpContext);
-                if (feature.Endpoint != null || feature.RequestDelegate != null)
+
+                if (feature.RequestDelegate != null)
+                {
+                    _logger.LogInformation("Executing short-circuit response from dispatcher");
+                    try
+                    {
+                        await feature.RequestDelegate(httpContext);
+                    }
+                    finally
+                    {
+                        _logger.LogInformation("Executed short-circuit response from dispatcher");
+                    }
+
+                    return;
+                }
+
+                if (feature.Endpoint != null)
                 {
                     _logger.LogInformation("Matched endpoint {Endpoint}", feature.Endpoint.DisplayName);
                     break;

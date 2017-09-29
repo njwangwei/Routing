@@ -53,22 +53,22 @@ namespace Microsoft.AspNetCore.Dispatcher
                 }
             }
 
-            if (feature.RequestDelegate != null)
+            if (feature.RequestDelegate == null)
             {
-                _logger.LogInformation("Executing endpoint {Endpoint}", feature.Endpoint.DisplayName);
-                try
-                {
-                    await feature.RequestDelegate(context);
-                }
-                finally
-                {
-                    _logger.LogInformation("Executed endpoint {Endpoint}", feature.Endpoint.DisplayName);
-                }
-
+                _logger.LogWarning("Could not create a handler for endpoint {Endpoint}");
+                await _next(context);
                 return;
             }
 
-            await _next(context);
+            _logger.LogInformation("Executing endpoint {Endpoint}", feature.Endpoint.DisplayName);
+            try
+            {
+                await feature.RequestDelegate(context);
+            }
+            finally
+            {
+                _logger.LogInformation("Executed endpoint {Endpoint}", feature.Endpoint.DisplayName);
+            }
         }
     }
 }
