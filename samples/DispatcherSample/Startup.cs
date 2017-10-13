@@ -10,26 +10,94 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Dispatcher;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 
 namespace DispatcherSample
 {
+    public class DispatcherOptions2
+    {
+
+    }
+
+    public static class RSCE
+    {
+        public static IServiceCollection AddRoutes(this IServiceCollection services, Action<IDRB> action)
+        {
+            return services;
+        }
+    }
+
+    public class IDRB
+    {
+        private readonly DefaultDispatcherDataSource _data;
+
+        public void MapMvcRoute(string v)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal RouteEntryBuilder MapGet(string template)
+        {
+            return new RouteEntryBuilder(_data, template, "GET");
+        }
+
+        internal RouteEntryBuilder MapRoute(string v)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class RouteEntryBuilder
+    {
+        private DefaultDispatcherDataSource _data;
+        private string _template;
+        private string _httpMethod;
+
+        public RouteEntryBuilder(DefaultDispatcherDataSource data, string template, string method)
+        {
+            _data = data;
+            _template = template;
+            _httpMethod = method;
+        }
+
+        public IList<object> Metadata { get; }
+
+        internal void Executes(RequestDelegate action)
+        {
+            _data.Endpoints.Add(new TemplateEndpoint(_template, _httpMethod, action, Metadata.ToArray()));
+        }
+    }
+
+    public static class AuthREBExtensions
+    {
+        public static RouteEntryBuilder WithAuthPolicy(this RouteEntryBuilder builder, string policy)
+        {
+            builder.Metadata.Add(new AuthorizationPolicyMetadata(policy));
+            return builder;
+        }
+    }
+
+
     public class Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDispatcher();
+            services.AddRoutes(routes => 
+            {
+                routes.MapMvcRoute("{controller=Home}/{action=Index}/{id?}");
 
-            // This is a temporary layering issue, don't worry about :)
-            services.AddRouting();
-            services.AddSingleton<RouteTemplateUrlGenerator>();
-            services.AddSingleton<IDefaultMatcherFactory, TreeMatcherFactory>();
+                routes
+                    .MapGet("/authenticate")
+                    .WithAuthPolicy("members-only-VIP")
+                    .Executes(c => c.Response.WriteAsync("heyoooo"));
 
-            // Imagine this was done by MVC or another framework.
-            services.AddSingleton<DispatcherDataSource>(ConfigureDispatcher());
-            services.AddSingleton<EndpointSelector, HttpMethodEndpointSelector>();
-
+                routes.MapRoute("/foo")
+                      .Executes(c => c.Response.WriteAsync("foo"));
+            });
         }
 
+        #region LOL
         public DefaultDispatcherDataSource ConfigureDispatcher()
         {
             return new DefaultDispatcherDataSource()
@@ -53,6 +121,8 @@ namespace DispatcherSample
                 },
             };
         }
+
+        #endregion
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger<Startup> logger)
         {
@@ -83,6 +153,8 @@ namespace DispatcherSample
                 await next.Invoke();
             });
         }
+
+        #region LOLOL
 
         public static Task Home_Index(HttpContext httpContext)
         {
@@ -138,5 +210,7 @@ namespace DispatcherSample
                 $"</body>" +
                 $"</html>");
         }
+
+#endregion
     }
 }
